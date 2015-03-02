@@ -4,57 +4,63 @@ import	numpy				as	np
 import	matplotlib.pyplot		as	plt
 import	email_process			as	ep
 import	classifier_Library		as	clfLib
+import	time
 from	pandas				import	DataFrame
 from	sklearn.naive_bayes		import	MultinomialNB
 from	sklearn.naive_bayes		import	BernoulliNB
 from	sklearn.feature_selection	import	SelectKBest
 from	sklearn.feature_selection	import	chi2
 
-### For training datasets
+### Read datasets
 nEmail_tr	= 45000
-nWord		= 9579
-emailClass_tr	= file('../HW1/Train/train_emails_classes_200.txt').readlines()
-emailClass_tr	= np.array([str.split(emailClass_tr[i]) for i in range(nEmail_tr)]).squeeze()
-emailClass_tr	= np.where(emailClass_tr=='NotSpam',0,1)
-bow_tr		= ep.read_bagofwords_dat('../HW1/Train/train_emails_bag_of_words_200.dat',nEmail_tr)
-
-vocal   	= file('../HW1/Train/train_emails_vocab_200.txt').readlines()
-vocal		= np.array([str.split(vocal[i]) for i in range(nWord)]).squeeze()
-
-### For test datasets
 nEmail_te	= 5000
-emailClass_te	= file('../HW1/Test/test_emails_classes_0.txt').readlines()
-emailClass_te	= np.array([str.split(emailClass_te[i]) for i in range(nEmail_te)]).squeeze()
-emailClass_te	= np.where(emailClass_te=='NotSpam',0,1)
-bow_te		= ep.read_bagofwords_dat('../HW1/Test/test_emails_bag_of_words_0.dat',nEmail_te)
+nWord		= 9579
+nFeatures	= 200
+
+bow_tr, emailClass_tr = clfLib.getTraining(nEmail_tr)
+bow_te, emailClass_te = clfLib.getTesting(nEmail_te)
 
 ### Option for feature selection
-nFeatures	= 200
-feature_select	= False
+feature_select	= True
 
+print "Do feature selection: %s \n" % (feature_select)
 if feature_select:
 	kbest	= SelectKBest(chi2, k=nFeatures)
 	bow_tr	= kbest.fit_transform(bow_tr, emailClass_tr)
 	bow_te	= kbest.transform(bow_te)
 
-print	bow_te.shape
-print	bow_tr.shape
-
 ### Naive Bayes classifier for multinomial models
+print "Classifier: MultimomialNB" 
+time_start	= time.time()
 clf_Mul		= MultinomialNB()
 clf_Mul.fit(bow_tr,emailClass_tr)
+time_tr 	= time.time()
+print "Training time: %f" % (time_tr - time_start)
 pre_te_Mul	= clf_Mul.predict(bow_te)
-acu_MulNB	= clf_Mul.score(bow_te, emailClass_te)
-print		acu_MulNB		
+time_te 	= time.time()
+print "Testing time: %f" % (time_te - time_tr)
+
+acu_MulNB_tr	= clf_Mul.score(bow_tr, emailClass_tr)
+acu_MulNB_te	= clf_Mul.score(bow_te, emailClass_te)
+print "Accuracy on training data: %0.3f" % (acu_MulNB_tr)
+print "Accuracy on test data: %0.3f \n" % (acu_MulNB_te)
 
 ### Naive Bayes classifier for Bernoulli models
+print "Classifier: BernoulliNB" 
 bow_tr_occ	= np.sign(bow_tr)	# Change word counts to word occurence
 bow_te_occ	= np.sign(bow_te)	# Change word counts to word occurence
+time_start	= time.time()
 clf_Ber		= BernoulliNB()
 clf_Ber.fit(bow_tr_occ,emailClass_tr)
+time_tr 	= time.time()
+print "Training time: %f" % (time_tr - time_start)
 pre_te_Ber	= clf_Ber.predict(bow_te_occ)
-acu_BerNB	= clf_Ber.score(bow_te_occ, emailClass_te)
-print		acu_BerNB		
+time_te 	= time.time()
+print "Testing time: %f" % (time_te - time_tr)
 
+acu_BerNB_tr	= clf_Ber.score(bow_tr_occ, emailClass_tr)
+acu_BerNB_te	= clf_Ber.score(bow_te_occ, emailClass_te)
+print "Accuracy on training data: %0.3f" % (acu_BerNB_tr)
+print "Accuracy on test data: %0.3f \n" % (acu_BerNB_te)
 
 
