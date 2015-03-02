@@ -5,6 +5,7 @@ import	matplotlib.pyplot		as	plt
 import	email_process			as	ep
 import	classifier_Library		as	clfLib
 import	time
+import	os
 from	pandas				import	DataFrame
 from	sklearn.naive_bayes		import	MultinomialNB
 from	sklearn.naive_bayes		import	BernoulliNB
@@ -24,9 +25,9 @@ bow_tr, emailClass_tr = clfLib.getTraining(nEmail_tr)
 bow_te, emailClass_te = clfLib.getTesting(nEmail_te)
 
 ### Option for feature selection
-feature_select	= True
+feature_select	= False
 
-print "Do feature selection: %s \n" % (feature_select)
+print "Do feature selection: %s (%s) \n" % (feature_select, nFeatures)
 if feature_select:
 	kbest	= SelectKBest(chi2, k=nFeatures)
 	bow_tr	= kbest.fit_transform(bow_tr, emailClass_tr)
@@ -50,7 +51,9 @@ recall		= recall_spam
 fall_out	= 1 - recall_nospam
 label		= ['NotSpam', 'Spam']
 report		= classification_report(emailClass_te, pre_te_Mul, target_names=label)
-np.savez('../HW1/Results/Metric_MNB', recall, fall_out, fpr, tpr, roc_auc, thresholds)
+np.savez('../HW1/Results/Metric_MNB_%s_%s' % (feature_select, nFeatures), recall, fall_out, fpr, tpr, roc_auc, thresholds)
+clfLib.calibration_plot(clf_Mul.fit(bow_tr,emailClass_tr), bow_te, emailClass_te)
+os.system('mv ../HW1/Figures/calibration_plot.pdf ../HW1/Figures/calibration_plot_MNB_%s_%s.pdf' % (feature_select, nFeatures))
 
 print "Classifier: MultimomialNB \n" 
 print "Training time: %f" % (time_tr - time_start)
@@ -78,7 +81,9 @@ recall_nospam, recall_spam	= recall_score(emailClass_te, pre_te_Ber, average=Non
 recall		= recall_spam
 fall_out	= 1 - recall_nospam
 report		= classification_report(emailClass_te, pre_te_Ber, target_names=label)
-np.savez('../HW1/Results/Metric_BNB', recall, fall_out, fpr, tpr, roc_auc, thresholds)
+np.savez('../HW1/Results/Metric_BNB_%s_%s' % (feature_select, nFeatures), recall, fall_out, fpr, tpr, roc_auc, thresholds)
+clfLib.calibration_plot(clf_Ber.fit(bow_tr,emailClass_tr), bow_te, emailClass_te)
+os.system('mv ../HW1/Figures/calibration_plot.pdf ../HW1/Figures/calibration_plot_BNB_%s_%s.pdf' % (feature_select, nFeatures))
 
 print "Classifier: BernoulliNB \n" 
 print "Training time: %f" % (time_tr - time_start)
