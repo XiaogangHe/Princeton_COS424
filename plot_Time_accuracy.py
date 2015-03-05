@@ -8,9 +8,9 @@ import	xlrd
 Plot computational time
 """
 colorsTr	= ['-bp', '-rp', '-gp', '-kp', '-yp', '-pp']
-colorsTe	= ['--bp', '--rp', '--gp', '--kp', '--yp', '--pp']
+colorsTe	= ['-.bp', '-.rp', '-.gp', '-.kp', '-.yp', '-.pp']
 colorsAccTr	= ['-bo', '-ro', '-go', '-ko', '-yo', '-po']
-colorsAccTe	= ['--bo', '--ro', '--go', '--ko', '--yo', '--po']
+colorsAccTe	= ['-.bo', '-.ro', '-.go', '-.ko', '-.yo', '-.po']
 clf_set		= ['MNB', 'BNB', 'KNN', 'LSVM', 'RF']
 clf_label	= ['MNB', 'BNB', 'KNN', 'Linear SVM', 'RF']
 feature_set	= ['20', '50', '100', '200', '500', '1000', 'All']
