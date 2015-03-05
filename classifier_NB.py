@@ -19,7 +19,7 @@ from	sklearn.metrics			import	roc_curve, auc
 nEmail_tr	= 45000
 nEmail_te	= 5000
 nWord		= 9579
-nFeatures	= 200
+nFeatures	= 1000
 
 bow_tr, emailClass_tr = clfLib.getTraining(nEmail_tr)
 bow_te, emailClass_te = clfLib.getTesting(nEmail_te)
@@ -74,7 +74,7 @@ time_te 	= time.time()
 
 acu_BerNB_tr	= clf_Ber.score(bow_tr_occ, emailClass_tr)
 acu_BerNB_te	= clf_Ber.score(bow_te_occ, emailClass_te)
-probas_		= clf_Ber.fit(bow_tr, emailClass_tr).predict_proba(bow_te)
+probas_		= clf_Ber.fit(bow_tr_occ, emailClass_tr).predict_proba(bow_te)
 fpr, tpr, thresholds		= roc_curve(emailClass_te, probas_[:,1])
 roc_auc		= auc(fpr, tpr)
 recall_nospam, recall_spam	= recall_score(emailClass_te, pre_te_Ber, average=None)
